@@ -1,6 +1,6 @@
 CC = gcc
 
-SRC = main.c glad.c
+SRC = main.c glad.c shader.c stb_image.c
 
 INCLUDE = -Iinclude
 
