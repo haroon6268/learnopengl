@@ -9,6 +9,19 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
+void mouse_callback(GLFWwindow*, double xpos, double ypos);
+
+vec3 cameraPos = {0.0f, 0.0f, 3.0f};
+vec3 cameraFront = {0.0f, 0.0f, -1.0f};
+vec3 cameraUp = {0.0f, 1.0f, 0.0f};
+int firstMouse = 1;
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+float lastX = 400.0f;
+float lastY = 300.0f;
+float pitch = 0.0f;;
+float yaw = -90.0f;
+
 
 int main(){
 	if(!glfwInit()){
@@ -39,6 +52,8 @@ int main(){
 
 	glViewport(0, 0, 800, 600);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, mouse_callback);
 
 	unsigned int vertex_shader;
 	char* vertex_shader_source = read_file("vertex.glsl");
@@ -203,14 +218,14 @@ int main(){
 		{-3.8f, -2.0f, -12.3f},
 		{-1.3f, 1.0f, -1.5f}
 	};
-	
-
-
-
 
 
 		
 	while(!glfwWindowShouldClose(window)){
+
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
 
 		processInput(window);
 
@@ -222,11 +237,10 @@ int main(){
 		glm_rotate(model, (float)glfwGetTime() * glm_rad(50.0f) , (vec3){0.5f, 1.0f, 0.0f});
 		
 
-		const float radius = 10.0f;
-		float camX = sin(glfwGetTime()) * radius;
-		float camZ = cos(glfwGetTime()) * radius;
 		mat4 view;
-		glm_lookat((vec3){camX, 0.0f, camZ}, (vec3){0.0f, 0.0f, 0.0f}, (vec3){0.0f, 1.0f, 0.0f}, view);
+		vec3 target;
+		glm_vec3_add(cameraFront, cameraPos, target);
+		glm_lookat(cameraPos, target, cameraUp, view);
 
 
 		int modelLoc, viewLoc, projectionLoc;
@@ -281,7 +295,76 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height){
 }
 
 void processInput(GLFWwindow* window){
+	const float cameraSpeed = 5.0f * deltaTime;
 	if(glfwGetKey(window, GLFW_KEY_ESCAPE)){
 		glfwSetWindowShouldClose(window, 1);
 	}
+	
+	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
+		vec3 direction;
+		glm_vec3_scale(cameraFront, cameraSpeed, direction);
+		glm_vec3_add(cameraPos, direction, cameraPos);
+	}
+
+	if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
+		vec3 direction;
+		glm_vec3_scale(cameraFront, cameraSpeed, direction);
+		glm_vec3_sub(cameraPos, direction, cameraPos);
+	}
+
+	if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
+		vec3 orthogonalVec;
+		glm_cross(cameraFront, cameraUp, orthogonalVec); 
+		glm_normalize(orthogonalVec);
+		vec3 direction;
+		glm_vec3_scale(orthogonalVec, cameraSpeed, direction);
+		glm_vec3_sub(cameraPos, direction, cameraPos);
+	}
+
+	if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
+		vec3 orthogonalVec;
+		glm_cross(cameraFront, cameraUp, orthogonalVec); 
+		glm_normalize(orthogonalVec);
+		vec3 direction;
+		glm_vec3_scale(orthogonalVec, cameraSpeed, direction);
+		glm_vec3_add(cameraPos, direction, cameraPos);
+	}
+	
+
+}
+
+
+void mouse_callback(GLFWwindow*, double xpos, double ypos){
+	if(firstMouse){
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = 0;
+	}
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos;
+	lastX = xpos;
+	lastY = ypos;
+
+	const float sens = 0.1f;
+	yoffset *= sens;
+	xoffset *= sens;
+
+	yaw += xoffset;
+	pitch += yoffset;
+
+	if(pitch > 89.0f){
+		pitch = 89.0f;
+	}
+	if(pitch < -89.0f){
+		pitch = 89.0f;	
+	}
+
+	vec3 target = {0.0f, 0.0f, 0.0f};
+	target[0] = cos(glm_rad(yaw)) * cos(glm_rad(pitch));
+	target[1] = sin(glm_rad(pitch));
+	target[2] = sin(glm_rad(yaw)) * cos(glm_rad(pitch));
+	glm_normalize(target);
+	cameraFront[0] = target[0];
+	cameraFront[1] = target[1];
+	cameraFront[2] = target[2];
 }
