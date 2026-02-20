@@ -83,50 +83,69 @@ int main(){
 		printf("ERROR::SHADERPROGRAM::LINKING_FAILED\n%s", infoLog);
 	}
 
-	float vertices[] = {
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	unsigned int lightCubeFragShader;
+	char* light_frag_shader_source = read_file("lightFShader.glsl");
+	if(compile_shader(&lightCubeFragShader, GL_FRAGMENT_SHADER, light_frag_shader_source) != 0){
+		return -1;
+	}
 
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	unsigned int lightCubeShader;
+	lightCubeShader = glCreateProgram();
 
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	glAttachShader(lightCubeShader, vertex_shader);
+	glAttachShader(lightCubeShader, lightCubeFragShader);
+	glLinkProgram(lightCubeShader);
 
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	glGetProgramiv(lightCubeShader, GL_LINK_STATUS, &success);
+	if(!success){
+		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+		printf("ERROR::SHADERPROGRAM::LINKING_FAILED\n%s", infoLog);
+	}
+	
+float vertices[] = {
+    // positions          // normals           // texture coords
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
 
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
 
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-	};
+    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
+     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+
+    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+
+    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
+};	
 	unsigned int indices[] = {
 		0, 1, 2,
 		2, 3, 0
@@ -146,7 +165,7 @@ int main(){
 	stbi_set_flip_vertically_on_load(1);
 
 	int width, height, nrChannels;
-	unsigned char* data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load("container.png", &width, &height, &nrChannels, 0);
 
 	unsigned int texture;
 	glGenTextures(1, &texture);
@@ -156,7 +175,7 @@ int main(){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 
@@ -170,7 +189,7 @@ int main(){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	data = stbi_load("awesomeface.png", &width, &height, &nrChannels, 0);
+	data = stbi_load("specular.png", &width, &height, &nrChannels, 0);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -190,20 +209,38 @@ int main(){
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(sizeof(float)*3));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(sizeof(float)*3));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float)*6));
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+	unsigned int lightingVao;
+
+	glGenVertexArrays(1, &lightingVao);
+	glBindVertexArray(lightingVao);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
 	glUseProgram(shaderProgram);
+
+	GLint objectColorLoc = glGetUniformLocation(shaderProgram, "objectColor");
+	glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
 	
-	glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
-	glUniform1i(glGetUniformLocation(shaderProgram, "texture2"), 1);
+	GLint lightColorLoc = glGetUniformLocation(shaderProgram, "lightColor");
+	glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
+	
 
 
 	mat4 projection;
@@ -212,13 +249,29 @@ int main(){
 
 	glEnable(GL_DEPTH_TEST);
 
-	vec3 cubePositions[] = {
-		{0.0f, 0.0f, 0.0f},
-		{2.0f, 5.0f, -15.0f},
-		{-3.8f, -2.0f, -12.3f},
-		{-1.3f, 1.0f, -1.5f}
-	};
+	vec3 lightPos = {1.2f, 1.0f, 2.0f};
+	vec3 cubePos = {0.0f, 0.0f, -4.0f};
+	
+	unsigned int lightPosLoc = glGetUniformLocation(shaderProgram, "lightPos");
+  glUniform3f(lightPosLoc, lightPos[0], lightPos[1], lightPos[2]);
 
+	unsigned int viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");
+
+	unsigned int diffuseLoc = glGetUniformLocation(shaderProgram, "material.diffuse");
+	unsigned int specularLoc = glGetUniformLocation(shaderProgram, "material.specular");
+	unsigned int shininessLoc = glGetUniformLocation(shaderProgram, "material.shininess");
+	
+	glUniform1i(diffuseLoc, 0);
+	glUniform1i(specularLoc, 1);
+	glUniform1f(shininessLoc, 0.6f * 128.0f);
+
+	unsigned int lAmbientLoc = glGetUniformLocation(shaderProgram, "light.ambient");
+	unsigned int lDiffuseLoc = glGetUniformLocation(shaderProgram, "light.diffuse");
+	unsigned int lSpecularLoc = glGetUniformLocation(shaderProgram, "light.specular");
+
+	glUniform3f(lAmbientLoc, 0.4f, 0.4f, 0.4f);	
+	glUniform3f(lDiffuseLoc, 0.6f, 0.6f, 0.6f);
+	glUniform3f(lSpecularLoc, 1.0f, 1.0f, 1.0f);
 
 		
 	while(!glfwWindowShouldClose(window)){
@@ -232,17 +285,18 @@ int main(){
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		mat4 model;
-		glm_mat4_identity(model);
-		glm_rotate(model, (float)glfwGetTime() * glm_rad(50.0f) , (vec3){0.5f, 1.0f, 0.0f});
 		
-
 		mat4 view;
 		vec3 target;
 		glm_vec3_add(cameraFront, cameraPos, target);
 		glm_lookat(cameraPos, target, cameraUp, view);
 
+		mat4 model;
+		glm_mat4_identity(model);
+		glm_translate(model, cubePos);
 
+		glUseProgram(shaderProgram);
+		glUniform3f(viewPosLoc, cameraPos[0], cameraPos[1], cameraPos[2]);
 		int modelLoc, viewLoc, projectionLoc;
 
 		modelLoc = glGetUniformLocation(shaderProgram, "model");
@@ -251,30 +305,51 @@ int main(){
 
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, (const GLfloat*)view);
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, (const GLfloat*)projection);
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (const GLfloat*)model);
+
+
+		GLint objectColorLoc = glGetUniformLocation(shaderProgram, "objectColor");
+		glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
+	
+		GLint lightColorLoc = glGetUniformLocation(shaderProgram, "lightColor");
+		glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
+	
 
 
 		float timeValue = glfwGetTime();
 		float greenValue = (sin(timeValue)/ 2.0f) + 0.5f;
 		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
 		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
+
 		glActiveTexture(GL_TEXTURE0);	
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
+
 		glBindVertexArray(VAO);
-
-		for(unsigned int i = 0; i < (sizeof(cubePositions) / sizeof(vec3));i++){
-			mat4 model;
-			glm_mat4_identity(model);
-			glm_translate(model, cubePositions[i]);
-			float angle = 20.0f * i;
-			glm_rotate(model, glm_rad(angle), (vec3){1.0f, 0.3f, 0.5f});
-		  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (const GLfloat*)model);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
-
-
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
+
+		glUseProgram(lightCubeShader);
+
+		modelLoc = glGetUniformLocation(lightCubeShader, "model");
+		viewLoc = glGetUniformLocation(lightCubeShader, "view");
+		projectionLoc = glGetUniformLocation(lightCubeShader, "projection");
+
+		glm_mat4_identity(model);
+		glm_translate(model, lightPos);
+
+		
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, (const GLfloat*)view);
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, (const GLfloat*)projection);
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (const GLfloat*)model);
+			
+
+		glBindVertexArray(lightingVao);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+		
 
 
 
